@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="vi">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ thống Chấm công</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.33);
+                opacity: 1;
+            }
+            80%, 100% {
+                transform: scale(2.4);
+                opacity: 0;
+            }
+        }
+        
+        .scan-line {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .scan-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #10b981, transparent);
+            animation: scan 3s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .status-indicator {
+            position: relative;
+        }
+        
+        .status-indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.3;
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        
+        @keyframes ping {
+            75%, 100% {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="min-h-full gradient-bg">
+  <div class="min-h-screen flex items-center justify-center p-4">
+   <div class="w-full max-w-6xl mx-auto"><!-- Header Section -->
+    <div class="text-center mb-8">
+     <div class="inline-flex items-center justify-center w-20 h-20 rounded-full glass-effect mb-6">
+      <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+      </svg>
+     </div>
+     <h1 class="text-5xl font-bold text-white mb-4" id="main-title">Hệ thống Chấm công</h1>
+     <p class="text-xl text-white/80 font-medium" id="subtitle">Nhận diện khuôn mặt thông minh với công nghệ AI mém tiên tiến</p>
+    </div><!-- Main Content -->
+    <div class="grid lg:grid-cols-3 gap-8"><!-- Video Stream -->
+     <div class="lg:col-span-2">
+      <div class="glass-effect rounded-3xl p-8 shadow-2xl">
+       <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold text-white">Camera Trực tiếp</h2>
+        <div class="flex items-center space-x-2">
+         <div class="status-indicator w-3 h-3 bg-green-400 rounded-full"></div><span class="text-green-400 font-medium">Đang hoạt động</span>
+        </div>
+       </div>
+       <div class="relative w-full h-[700px] bg-gray-900/50 rounded-2xl overflow-hidden border-2 border-white/20 scan-line"><img id="video-stream" src="{{ url_for('video_feed') }}" alt="Video Stream" class="w-full h-full object-cover" onerror="this.alt='Không thể kết nối camera. Vui lòng kiểm tra kết nối.'; this.style.background='#1f2937'; this.style.display='flex'; this.style.alignItems='center'; this.style.justifyContent='center';"> <!-- Overlay UI -->
+        <div class="absolute inset-0 pointer-events-none"><!-- Corner brackets -->
+         <div class="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-green-400"></div>
+         <div class="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-green-400"></div>
+         <div class="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-green-400"></div>
+         <div class="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-green-400"></div><!-- Center crosshair -->
+         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <div class="w-12 h-12 border-2 border-white/50 rounded-full flex items-center justify-center">
+           <div class="w-2 h-2 bg-white rounded-full pulse-ring"></div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Control Panel -->
+     <div class="space-y-6"><!-- Status Panel -->
+      <div class="glass-effect rounded-3xl p-6 shadow-2xl">
+       <h3 class="text-xl font-semibold text-white mb-4">Trạng thái Hệ thống</h3>
+       <div class="space-y-4">
+        <div class="flex items-center justify-between p-3 bg-white/10 rounded-xl"><span class="text-white/80">AI Detection</span>
+         <div class="flex items-center space-x-2">
+          <div class="w-2 h-2 bg-green-400 rounded-full"></div><span class="text-green-400 text-sm font-medium">Hoạt động</span>
+         </div>
+        </div>
+        <div class="flex items-center justify-between p-3 bg-white/10 rounded-xl"><span class="text-white/80">Face Recognition</span>
+         <div class="flex items-center space-x-2">
+          <div class="w-2 h-2 bg-green-400 rounded-full"></div><span class="text-green-400 text-sm font-medium">Sẵn sàng</span>
+         </div>
+        </div>
+        <div class="flex items-center justify-between p-3 bg-white/10 rounded-xl"><span class="text-white/80">Liveness Check</span>
+         <div class="flex items-center space-x-2">
+          <div class="w-2 h-2 bg-green-400 rounded-full"></div><span class="text-green-400 text-sm font-medium">Đang quét</span>
+         </div>
+        </div>
+       </div>
+      </div><!-- Detection Legend -->
+      <div class="glass-effect rounded-3xl p-6 shadow-2xl">
+       <h3 class="text-xl font-semibold text-white mb-4">Chú thích</h3>
+       <div class="space-y-3">
+        <div class="flex items-center space-x-3">
+         <div class="w-4 h-4 bg-green-400 rounded-full shadow-lg shadow-green-400/50"></div><span class="text-white/90 font-medium">Khuôn mặt thật</span>
+        </div>
+        <div class="flex items-center space-x-3">
+         <div class="w-4 h-4 bg-red-400 rounded-full shadow-lg shadow-red-400/50"></div><span class="text-white/90 font-medium">Khuôn mặt giả</span>
+        </div>
+       </div>
+    </div><!-- Footer -->
+    <footer class="text-center mt-12">
+     <div class="glass-effect rounded-2xl p-6 inline-block">
+      <p class="text-white/60 text-sm" id="footer-text">Được hỗ trợ bởi công nghệ AI • Xử lý thời gian thực</p>
+     </div>
+    </footer>
+   </div>
+  </div>
+  <script>
+        const defaultConfig = {
+            main_title: "Hệ thống Chấm công AI",
+            subtitle: "Nhận diện khuôn mặt thông minh với công nghệ AI mém tiên tiến",
+            footer_text: "Được hỗ trợ bởi công nghệ AI tiên tiến • Bảo mật cao • Xử lý thời gian thực",
+            primary_color: "#667eea",
+            secondary_color: "#764ba2",
+            accent_color: "#10b981",
+            text_color: "#ffffff",
+            surface_color: "rgba(255, 255, 255, 0.1)"
+        };
+
+        async function onConfigChange(config) {
+            const mainTitle = config.main_title || defaultConfig.main_title;
+            const subtitle = config.subtitle || defaultConfig.subtitle;
+            const footerText = config.footer_text || defaultConfig.footer_text;
+            const primaryColor = config.primary_color || defaultConfig.primary_color;
+            const secondaryColor = config.secondary_color || defaultConfig.secondary_color;
+            const accentColor = config.accent_color || defaultConfig.accent_color;
+            const textColor = config.text_color || defaultConfig.text_color;
+
+            document.getElementById('main-title').textContent = mainTitle;
+            document.getElementById('subtitle').textContent = subtitle;
+            document.getElementById('footer-text').textContent = footerText;
+
+            // Update gradient background
+            document.body.style.background = `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`;
+            
+            // Update text colors
+            document.body.style.color = textColor;
+            
+            // Update accent colors
+            const accentElements = document.querySelectorAll('.text-green-400, .bg-green-400, .border-green-400');
+            accentElements.forEach(el => {
+                el.style.color = accentColor;
+                el.style.backgroundColor = accentColor;
+                el.style.borderColor = accentColor;
+            });
+        }
+
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [
+                    {
+                        get: () => config.primary_color || defaultConfig.primary_color,
+                        set: (value) => {
+                            config.primary_color = value;
+                            window.elementSdk.setConfig({ primary_color: value });
+                        }
+                    },
+                    {
+                        get: () => config.secondary_color || defaultConfig.secondary_color,
+                        set: (value) => {
+                            config.secondary_color = value;
+                            window.elementSdk.setConfig({ secondary_color: value });
+                        }
+                    },
+                    {
+                        get: () => config.accent_color || defaultConfig.accent_color,
+                        set: (value) => {
+                            config.accent_color = value;
+                            window.elementSdk.setConfig({ accent_color: value });
+                        }
+                    },
+                    {
+                        get: () => config.text_color || defaultConfig.text_color,
+                        set: (value) => {
+                            config.text_color = value;
+                            window.elementSdk.setConfig({ text_color: value });
+                        }
+                    }
+                ],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            };
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["main_title", config.main_title || defaultConfig.main_title],
+                ["subtitle", config.subtitle || defaultConfig.subtitle],
+                ["footer_text", config.footer_text || defaultConfig.footer_text]
+            ]);
+        }
+
+        // Initialize SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig,
+                onConfigChange,
+                mapToCapabilities,
+                mapToEditPanelValues
+            });
+        }
+
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'993a8dbbf4c4854a',t:'MTc2MTMyMDIyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
