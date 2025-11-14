@@ -23,7 +23,7 @@ class FaceRecognizer:
                  model_path="model_train/yolo-classification.pt", 
                  db_path="face_db.pkl", 
                  device="cpu", 
-                 threshold=0.7):
+                 threshold=0.85):  # Tăng ngưỡng lên 0.85 để nghiêm ngặt hơn
         
         print(f"[INFO] Đang tải mô hình nhận dạng YOLO từ: {model_path}")
         self.device = torch.device(device)
@@ -32,6 +32,7 @@ class FaceRecognizer:
         self.extractor, self.transform = self._prepare_model(model_path, self.device)
         
         print(f"[INFO] Đang tải CSDL khuôn mặt từ: {db_path}")
+        self.db_path = db_path  # LƯU ĐỊA CHỈ DB
         self.db = self._load_db(db_path)
         self.threshold = threshold
         
@@ -260,19 +261,19 @@ class FaceRecognizer:
                 # Tính thống kê với tất cả embeddings
                 max_sim, avg_sim, std_sim = self._compute_similarity_stats(emb, data['embeddings'])
                 
-                # Tính điểm tổng hợp (weighted score)
-                combined_score = 0.5 * centroid_sim + 0.5 * max_sim
+                # Tính điểm tổng hợp (weighted score) - điều chỉnh trọng số
+                combined_score = 0.6 * centroid_sim + 0.4 * max_sim  # Tăng trọng số cho centroid
                 
-                # Bonus nếu avg_sim cũng cao
-                if avg_sim > 0.4:
-                    combined_score += 0.1 * (avg_sim - 0.4)
+                # Bonus nếu avg_sim cao
+                if avg_sim > 0.5:  # Tăng ngưỡng avg_sim
+                    combined_score += 0.15 * (avg_sim - 0.5)
                 
                 # Tính độ tin cậy
-                confidence = 1.0 - min(std_sim, 0.3) / 0.3
+                confidence = 1.0 - min(std_sim, 0.25) / 0.25  # Giảm ngưỡng std để phát hiện biến thiên sớm hơn
                 
-                # Penalty nếu std quá cao
-                if std_sim > 0.2:
-                    combined_score *= (1.0 - std_sim * 0.3)
+                # Penalty mạnh hơn nếu std cao
+                if std_sim > 0.15:  # Giảm ngưỡng std và tăng penalty
+                    combined_score *= (1.0 - std_sim * 0.5)
                 
                 if combined_score > best_score:
                     best_score = combined_score

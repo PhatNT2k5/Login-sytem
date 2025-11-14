@@ -7,7 +7,7 @@ class FaceDetectorYuNet:
     YuNet detector (OpenCV). Quan trọng: setInputSize theo đúng (W,H) của frame mỗi lần.
     """
     def __init__(self, model_path="face_detection_yunet_2023mar.onnx",
-                 conf_threshold=0.7, nms_threshold=0.3, top_k=5000,
+                 conf_threshold=0.8, nms_threshold=0.3, top_k=1,
                  init_input_size=(640, 480)):
         # Tạo detector; input size lúc khởi tạo chỉ là giá trị ban đầu
         if os.path.exists(model_path):

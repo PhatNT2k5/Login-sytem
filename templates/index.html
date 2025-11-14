@@ -1,263 +1,899 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hệ thống Chấm công</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="/_sdk/element_sdk.js"></script>
-  <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống chấm công AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
-        
-        .gradient-bg {
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --info: #3b82f6;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-primary);
         }
-        
-        .glass-effect {
-            backdrop-filter: blur(20px);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .container {
+            background: var(--bg-primary);
+            border-radius: 24px;
+            box-shadow: var(--shadow-xl);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
         }
-        
-        .pulse-ring {
-            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
-        @keyframes pulse-ring {
-            0% {
-                transform: scale(0.33);
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            gap: 0;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 40px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .tab-btn.active {
+            color: white;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            box-shadow: var(--shadow-md);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
                 opacity: 1;
             }
-            80%, 100% {
-                transform: scale(2.4);
-                opacity: 0;
+        }
+
+        /* ===== VIDEO & INFO ===== */
+        .video-container {
+            text-align: center;
+            margin: 0 0 30px 0;
+        }
+
+        .video-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #video, #video-register {
+            max-width: 100%;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            max-height: 450px;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+        }
+
+        #video:hover, #video-register:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .info-panel {
+            background: var(--bg-secondary);
+            padding: 24px;
+            border-radius: 16px;
+            margin: 30px 0;
+            border: 1px solid var(--border);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .status-in {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .status-out {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+
+        .live-indicator.yes {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        .live-indicator.no {
+            background: var(--danger);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 8px var(--success);
+            }
+            50% {
+                box-shadow: 0 0 16px var(--success);
             }
         }
-        
-        .scan-line {
-            position: relative;
+
+        .confidence-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .confidence-bar {
+            width: 80px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
             overflow: hidden;
         }
-        
-        .scan-line::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn-checkin {
             width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #10b981, transparent);
-            animation: scan 3s linear infinite;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: var(--shadow-md);
+            letter-spacing: 0.3px;
         }
-        
-        @keyframes scan {
-            0% { left: -100%; }
-            100% { left: 100%; }
+
+        .btn-checkin:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
-        
-        .status-indicator {
-            position: relative;
+
+        .btn-checkin:active:not(:disabled) {
+            transform: translateY(0);
         }
-        
-        .status-indicator::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: currentColor;
-            opacity: 0.3;
-            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+
+        .btn-checkin:disabled {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            box-shadow: var(--shadow-sm);
         }
-        
-        @keyframes ping {
-            75%, 100% {
-                transform: translate(-50%, -50%) scale(2);
+
+        .btn-checkin.ready {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
                 opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message {
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+            animation: slideDown 0.4s ease-out;
+            border-left: 4px solid;
+            font-size: 14px;
+        }
+
+        .message.success {
+            background: #ecfdf5;
+            color: var(--success);
+            border-left-color: var(--success);
+        }
+
+        .message.error {
+            background: #fef2f2;
+            color: var(--danger);
+            border-left-color: var(--danger);
+        }
+
+        .message.info {
+            background: #eff6ff;
+            color: var(--info);
+            border-left-color: var(--info);
+        }
+
+        /* ===== REGISTER FORM ===== */
+        .register-form {
+            background: var(--bg-secondary);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .form-group input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background: var(--bg-primary);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px 32px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-start:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-start:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-capture, .btn-complete, .btn-cancel {
+            flex: 1;
+            padding: 14px 16px;
+            font-size: 15px;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: none;
+        }
+
+        .form-actions:not(#registerActions[style*="display: none"]) .btn-capture,
+        .form-actions:not(#registerActions[style*="display: none"]) .btn-complete,
+        .form-actions:not(#registerActions[style*="display: none"]) .btn-cancel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-capture {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-capture:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-capture:disabled {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .btn-complete {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-complete:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-complete:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-cancel {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-cancel:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .register-status {
+            background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #fcd34d;
+            display: none;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        .register-status.active {
+            display: block;
+        }
+
+        #registerMessage {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 11px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .content {
+                padding: 24px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn-capture, .btn-complete, .btn-cancel {
+                width: 100%;
+            }
+
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
             }
         }
     </style>
-  <style>@view-transition { navigation: auto; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
- </head>
- <body class="min-h-full gradient-bg">
-  <div class="min-h-screen flex items-center justify-center p-4">
-   <div class="w-full max-w-6xl mx-auto"><!-- Header Section -->
-    <div class="text-center mb-8">
-     <div class="inline-flex items-center justify-center w-20 h-20 rounded-full glass-effect mb-6">
-      <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-      </svg>
-     </div>
-     <h1 class="text-5xl font-bold text-white mb-4" id="main-title">Hệ thống Chấm công</h1>
-     <p class="text-xl text-white/80 font-medium" id="subtitle">Nhận diện khuôn mặt thông minh với công nghệ AI mém tiên tiến</p>
-    </div><!-- Main Content -->
-    <div class="grid lg:grid-cols-3 gap-8"><!-- Video Stream -->
-     <div class="lg:col-span-2">
-      <div class="glass-effect rounded-3xl p-8 shadow-2xl">
-       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold text-white">Camera Trực tiếp</h2>
-        <div class="flex items-center space-x-2">
-         <div class="status-indicator w-3 h-3 bg-green-400 rounded-full"></div><span class="text-green-400 font-medium">Đang hoạt động</span>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>AI Attendance System</h1>
+            <p class="header-subtitle">Hệ thống chấm công nhận diện khuôn mặt thông minh</p>
         </div>
-       </div>
-       <div class="relative w-full h-[700px] bg-gray-900/50 rounded-2xl overflow-hidden border-2 border-white/20 scan-line"><img id="video-stream" src="{{ url_for('video_feed') }}" alt="Video Stream" class="w-full h-full object-cover" onerror="this.alt='Không thể kết nối camera. Vui lòng kiểm tra kết nối.'; this.style.background='#1f2937'; this.style.display='flex'; this.style.alignItems='center'; this.style.justifyContent='center';"> <!-- Overlay UI -->
-        <div class="absolute inset-0 pointer-events-none"><!-- Corner brackets -->
-         <div class="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-green-400"></div>
-         <div class="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-green-400"></div>
-         <div class="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-green-400"></div>
-         <div class="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-green-400"></div><!-- Center crosshair -->
-         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div class="w-12 h-12 border-2 border-white/50 rounded-full flex items-center justify-center">
-           <div class="w-2 h-2 bg-white rounded-full pulse-ring"></div>
-          </div>
-         </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <!-- TABS -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="checkin">📋 Chấm công</button>
+                <button class="tab-btn" data-tab="register">👤 Đăng ký khuôn mặt</button>
+            </div>
+
+            <!-- ===== TAB CHẤM CÔNG ===== -->
+            <div id="checkin" class="tab-content active">
+                <div class="video-container">
+                    <div class="video-label">📷 Camera Feed</div>
+                    <img id="video" src="{{ url_for('video_feed') }}" alt="Camera Feed">
+                </div>
+
+                <div class="info-panel">
+                    <div class="info-row">
+                        <span class="info-label">👤 Người dùng:</span>
+                        <span class="info-value" id="userName">Đang chờ...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">✨ Xác thực:</span>
+                        <span class="info-value" id="liveness">
+                            <span class="live-indicator no"></span>Chưa phát hiện
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">📊 Độ tin cậy:</span>
+                        <span class="info-value">
+                            <div class="confidence-display">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                                </div>
+                                <span id="confidence">0%</span>
+                            </div>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">🚪 Trạng thái:</span>
+                        <span class="info-value" id="currentState">
+                            <span class="status-badge status-out">
+                                <span class="live-indicator no"></span>OUT (Đã ra)
+                            </span>
+                        </span>
+                    </div>
+                </div>
+
+                <div id="message-checkin" class="message" style="display: none;"></div>
+
+                <button id="btnCheckin" class="btn-checkin" disabled>
+                    Đưa mặt vào camera để chấm công
+                </button>
+            </div>
+
+            <!-- ===== TAB ĐĂNG KÝ ===== -->
+            <div id="register" class="tab-content">
+                <div class="video-container">
+                    <div class="video-label">📷 Camera Feed</div>
+                    <img id="video-register" src="{{ url_for('video_feed') }}" alt="Camera Feed">
+                </div>
+
+                <div class="register-form">
+                    <div class="form-group" id="nameInputGroup">
+                        <label for="registerName">👤 Nhập tên của bạn:</label>
+                        <input type="text" id="registerName" placeholder="Ví dụ: Nguyễn Văn A">
+                        <button class="btn-start" id="btnStartRegister">🚀 Bắt đầu đăng ký</button>
+                    </div>
+
+                    <div class="register-status" id="registerStatus">
+                        <div id="registerMessage"></div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions" id="registerActions" style="display: none;">
+                        <button class="btn-capture" id="btnCapture">📸 Lưu mẫu</button>
+                        <button class="btn-complete" id="btnComplete">✅ Hoàn tất</button>
+                        <button class="btn-cancel" id="btnCancel">❌ Hủy</button>
+                    </div>
+                </div>
+
+                <div id="message-register" class="message" style="display: none;"></div>
+            </div>
         </div>
-       </div>
-      </div>
-     </div><!-- Control Panel -->
-     <div class="space-y-6"><!-- Status Panel -->
-      <div class="glass-effect rounded-3xl p-6 shadow-2xl">
-       <h3 class="text-xl font-semibold text-white mb-4">Trạng thái Hệ thống</h3>
-       <div class="space-y-4">
-        <div class="flex items-center justify-between p-3 bg-white/10 rounded-xl"><span class="text-white/80">AI Detection</span>
-         <div class="flex items-center space-x-2">
-          <div class="w-2 h-2 bg-green-400 rounded-full"></div><span class="text-green-400 text-sm font-medium">Hoạt động</span>
-         </div>
-        </div>
-        <div class="flex items-center justify-between p-3 bg-white/10 rounded-xl"><span class="text-white/80">Face Recognition</span>
-         <div class="flex items-center space-x-2">
-          <div class="w-2 h-2 bg-green-400 rounded-full"></div><span class="text-green-400 text-sm font-medium">Sẵn sàng</span>
-         </div>
-        </div>
-        <div class="flex items-center justify-between p-3 bg-white/10 rounded-xl"><span class="text-white/80">Liveness Check</span>
-         <div class="flex items-center space-x-2">
-          <div class="w-2 h-2 bg-green-400 rounded-full"></div><span class="text-green-400 text-sm font-medium">Đang quét</span>
-         </div>
-        </div>
-       </div>
-      </div><!-- Detection Legend -->
-      <div class="glass-effect rounded-3xl p-6 shadow-2xl">
-       <h3 class="text-xl font-semibold text-white mb-4">Chú thích</h3>
-       <div class="space-y-3">
-        <div class="flex items-center space-x-3">
-         <div class="w-4 h-4 bg-green-400 rounded-full shadow-lg shadow-green-400/50"></div><span class="text-white/90 font-medium">Khuôn mặt thật</span>
-        </div>
-        <div class="flex items-center space-x-3">
-         <div class="w-4 h-4 bg-red-400 rounded-full shadow-lg shadow-red-400/50"></div><span class="text-white/90 font-medium">Khuôn mặt giả</span>
-        </div>
-       </div>
-    </div><!-- Footer -->
-    <footer class="text-center mt-12">
-     <div class="glass-effect rounded-2xl p-6 inline-block">
-      <p class="text-white/60 text-sm" id="footer-text">Được hỗ trợ bởi công nghệ AI • Xử lý thời gian thực</p>
-     </div>
-    </footer>
-   </div>
-  </div>
-  <script>
-        const defaultConfig = {
-            main_title: "Hệ thống Chấm công AI",
-            subtitle: "Nhận diện khuôn mặt thông minh với công nghệ AI mém tiên tiến",
-            footer_text: "Được hỗ trợ bởi công nghệ AI tiên tiến • Bảo mật cao • Xử lý thời gian thực",
-            primary_color: "#667eea",
-            secondary_color: "#764ba2",
-            accent_color: "#10b981",
-            text_color: "#ffffff",
-            surface_color: "rgba(255, 255, 255, 0.1)"
+    </div>
+
+    <script>
+        // ========== TAB SWITCHING ==========
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                
+                btn.classList.add('active');
+                const tabName = btn.dataset.tab;
+                document.getElementById(tabName).classList.add('active');
+            });
+        });
+
+        // ========== CHẤM CÔNG ==========
+        let currentStatus = null;
+
+        setInterval(updateStatus, 500);
+
+        async function updateStatus() {
+            try {
+                const response = await fetch('/get_status');
+                const data = await response.json();
+                currentStatus = data;
+
+                document.getElementById('userName').textContent = data.name;
+                
+                const livenessEl = document.getElementById('liveness');
+                if (data.is_live) {
+                    livenessEl.innerHTML = '<span class="live-indicator yes"></span>Người thật (' + 
+                        (data.liveness_score * 100).toFixed(1) + '%)';
+                } else {
+                    livenessEl.innerHTML = '<span class="live-indicator no"></span>Không xác định';
+                }
+
+                const confidence = data.confidence * 100;
+                document.getElementById('confidence').textContent = confidence.toFixed(1) + '%';
+                document.getElementById('confidenceFill').style.width = confidence + '%';
+
+                const stateEl = document.getElementById('currentState');
+                if (data.current_state === 'IN') {
+                    stateEl.innerHTML = '<span class="status-badge status-in"><span class="live-indicator yes"></span>IN (Đã vào)</span>';
+                } else {
+                    stateEl.innerHTML = '<span class="status-badge status-out"><span class="live-indicator no"></span>OUT (Đã ra)</span>';
+                }
+
+                const btn = document.getElementById('btnCheckin');
+                if (data.ready) {
+                    btn.disabled = false;
+                    btn.className = 'btn-checkin ready';
+                    const nextAction = data.current_state === 'OUT' ? 'VÀO' : 'RA';
+                    btn.textContent = `✅ Chấm công ${nextAction} - ${data.name}`;
+                } else {
+                    btn.disabled = true;
+                    btn.className = 'btn-checkin';
+                    btn.textContent = 'Đưa mặt vào camera để chấm công';
+                }
+
+            } catch (error) {
+                console.error('Error updating status:', error);
+            }
+        }
+
+        document.getElementById('btnCheckin').addEventListener('click', async () => {
+            if (!currentStatus || !currentStatus.ready) return;
+
+            try {
+                const response = await fetch('/checkin', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                const result = await response.json();
+                const msgEl = document.getElementById('message-checkin');
+                
+                if (result.success) {
+                    msgEl.className = 'message success';
+                    msgEl.textContent = `✅ ${result.message} - ${result.timestamp}`;
+                } else {
+                    msgEl.className = 'message error';
+                    msgEl.textContent = `❌ ${result.message}`;
+                }
+                
+                msgEl.style.display = 'block';
+                setTimeout(() => {
+                    msgEl.style.display = 'none';
+                }, 5000);
+
+            } catch (error) {
+                console.error('Error checking in:', error);
+            }
+        });
+
+        // ========== ĐĂNG KÝ ==========
+        let registerState = {
+            active: false,
+            userName: null,
+            samplesCount: 0,
+            maxSamples: 5
         };
 
-        async function onConfigChange(config) {
-            const mainTitle = config.main_title || defaultConfig.main_title;
-            const subtitle = config.subtitle || defaultConfig.subtitle;
-            const footerText = config.footer_text || defaultConfig.footer_text;
-            const primaryColor = config.primary_color || defaultConfig.primary_color;
-            const secondaryColor = config.secondary_color || defaultConfig.secondary_color;
-            const accentColor = config.accent_color || defaultConfig.accent_color;
-            const textColor = config.text_color || defaultConfig.text_color;
+        setInterval(updateRegisterStatus, 500);
 
-            document.getElementById('main-title').textContent = mainTitle;
-            document.getElementById('subtitle').textContent = subtitle;
-            document.getElementById('footer-text').textContent = footerText;
+        async function updateRegisterStatus() {
+            try {
+                const response = await fetch('/get_register_status');
+                const data = await response.json();
+                registerState = data;
 
-            // Update gradient background
-            document.body.style.background = `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`;
-            
-            // Update text colors
-            document.body.style.color = textColor;
-            
-            // Update accent colors
-            const accentElements = document.querySelectorAll('.text-green-400, .bg-green-400, .border-green-400');
-            accentElements.forEach(el => {
-                el.style.color = accentColor;
-                el.style.backgroundColor = accentColor;
-                el.style.borderColor = accentColor;
-            });
+                if (data.active) {
+                    document.getElementById('registerStatus').classList.add('active');
+                    document.getElementById('registerActions').style.display = 'flex';
+                    document.getElementById('nameInputGroup').style.display = 'none';
+
+                    const registerMessage = document.getElementById('registerMessage');
+                    registerMessage.textContent = `📸 Đang đăng ký cho: ${data.user_name}`;
+
+                    const percent = Math.round((data.samples_count / data.max_samples) * 100);
+                    document.getElementById('progressFill').style.width = percent + '%';
+                    document.getElementById('progressFill').textContent = percent + '%';
+
+                    document.getElementById('btnCapture').textContent = `📸 Lưu mẫu (${data.samples_count}/${data.max_samples})`;
+                    document.getElementById('btnCapture').disabled = data.samples_count >= data.max_samples;
+                } else {
+                    document.getElementById('registerStatus').classList.remove('active');
+                    document.getElementById('registerActions').style.display = 'none';
+                    document.getElementById('nameInputGroup').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error updating register status:', error);
+            }
         }
 
-        function mapToCapabilities(config) {
-            return {
-                recolorables: [
-                    {
-                        get: () => config.primary_color || defaultConfig.primary_color,
-                        set: (value) => {
-                            config.primary_color = value;
-                            window.elementSdk.setConfig({ primary_color: value });
-                        }
-                    },
-                    {
-                        get: () => config.secondary_color || defaultConfig.secondary_color,
-                        set: (value) => {
-                            config.secondary_color = value;
-                            window.elementSdk.setConfig({ secondary_color: value });
-                        }
-                    },
-                    {
-                        get: () => config.accent_color || defaultConfig.accent_color,
-                        set: (value) => {
-                            config.accent_color = value;
-                            window.elementSdk.setConfig({ accent_color: value });
-                        }
-                    },
-                    {
-                        get: () => config.text_color || defaultConfig.text_color,
-                        set: (value) => {
-                            config.text_color = value;
-                            window.elementSdk.setConfig({ text_color: value });
-                        }
-                    }
-                ],
-                borderables: [],
-                fontEditable: undefined,
-                fontSizeable: undefined
-            };
-        }
+        document.getElementById('btnStartRegister').addEventListener('click', async () => {
+            const name = document.getElementById('registerName').value.trim();
+            if (!name) {
+                showRegisterMessage('❌ Vui lòng nhập tên!', 'error');
+                return;
+            }
 
-        function mapToEditPanelValues(config) {
-            return new Map([
-                ["main_title", config.main_title || defaultConfig.main_title],
-                ["subtitle", config.subtitle || defaultConfig.subtitle],
-                ["footer_text", config.footer_text || defaultConfig.footer_text]
-            ]);
-        }
+            try {
+                const response = await fetch('/register_start', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name: name})
+                });
 
-        // Initialize SDK
-        if (window.elementSdk) {
-            window.elementSdk.init({
-                defaultConfig,
-                onConfigChange,
-                mapToCapabilities,
-                mapToEditPanelValues
-            });
-        }
+                const result = await response.json();
+                if (result.success) {
+                    showRegisterMessage('✅ ' + result.message, 'success');
+                    document.getElementById('registerName').disabled = true;
+                    document.getElementById('btnStartRegister').disabled = true;
+                } else {
+                    showRegisterMessage('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showRegisterMessage('❌ Lỗi: ' + error.message, 'error');
+            }
+        });
 
+        document.getElementById('btnCapture').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/register_capture', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showRegisterMessage('✅ ' + result.message, 'success');
+                } else {
+                    showRegisterMessage('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showRegisterMessage('❌ Lỗi: ' + error.message, 'error');
+            }
+        });
+
+        document.getElementById('btnComplete').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/register_complete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showRegisterMessage('✅ ' + result.message, 'success');
+                    setTimeout(() => {
+                        document.getElementById('registerName').value = '';
+                        document.getElementById('registerName').disabled = false;
+                        document.getElementById('btnStartRegister').disabled = false;
+                    }, 2000);
+                } else {
+                    showRegisterMessage('❌ ' + result.message, 'error');
+                }
+            } catch (error) {
+                showRegisterMessage('❌ Lỗi: ' + error.message, 'error');
+            }
+        });
+
+        document.getElementById('btnCancel').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/register_cancel', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+
+                const result = await response.json();
+                document.getElementById('registerName').value = '';
+                document.getElementById('registerName').disabled = false;
+                document.getElementById('btnStartRegister').disabled = false;
+                showRegisterMessage('ℹ️ ' + result.message, 'info');
+            } catch (error) {
+                showRegisterMessage('❌ Lỗi: ' + error.message, 'error');
+            }
+        });
+
+        function showRegisterMessage(message, type) {
+            const msgEl = document.getElementById('message-register');
+            msgEl.className = 'message ' + type;
+            msgEl.textContent = message;
+            msgEl.style.display = 'block';
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 5000);
+        }
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'993a8dbbf4c4854a',t:'MTc2MTMyMDIyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
